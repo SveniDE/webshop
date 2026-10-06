@@ -1,0 +1,554 @@
+<diagram program="umletino" version="15.1"><zoom_level>3</zoom_level><element><id>UMLClass</id><coordinates><x>510</x><y>246</y><w>138</w><h>129</h></coordinates><panel_attributes>bg=pink
+abstrakt
+&lt;&lt;Kunde&gt;&gt;
+--
+-kundeid:int
+-kundennummer:String
+-anrede:String
+-vorname:String
+-nachname:String
+-email:String
+-telefon:String
+-anschrift: Adresse 
+-rechnungsadressen: ArrayList&lt;Adresse&gt;
+-lieferadressen:ArrayList&lt;Adresse&gt;
+
+--
++ Kunde(kundennummer: String, vorname:String, nachname: String,
+ email: String) //Konstruktor
+
++ addRechnungsadresse(adresse: Adresse):void 
+ //weitere Rechnungsanschrift hinterlegen
++ addLieferadresse(adresse: Adresse): void
+ //weitere LIeferanschrift hinterlegen
++ getVollerName(): String
+ //Vor- und Nachname für die Anzeige
++ getRabattProzent(): BigDecimal (abstrakt) 
+// Rabatt je Kundenart. Abstrakt: jede Unterklasse entscheidet selbst
+
+--
+
+Notizen:
+Kundennummer ist eindeutig
+ und unveränderlich. 
+Nur Privat- oder Geschäftskunde,
+ nie ein "Kunde" an sich (abstrakt)!
+
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>657</x><y>246</y><w>96</w><h>99</h></coordinates><panel_attributes>bg=pink
+Privatkunde
+--
+-geburtsdatum:LocalDate
+--
+
++ Privatkunde(kundennummer: String, vorname:
+String, nachname: String, email: String,
+geburtsdatum: LocalDate) //Konstruktor
+
++ istVolljaehrig(): boolean 
+ // Kauf auf Rechnung nur für Volljährige
++ istVolljaehrigAm(stichtag: LocalDate): boolean 
+ //dasselbe an einem festen Tag damit man das Testen kann.
++ getRabattProzent(): BigDecimal 
+ // Privatkunden erhalten keinen Rabatt
+
+--
+
+Notizen:
+Kein Rabatt. Volljährigkeit
+aus dem Geburtsdatum
+(Kauf auf Rechnung, Artikel
+ab 18).
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>759</x><y>246</y><w>111</w><h>99</h></coordinates><panel_attributes>bg=pink
+Geschäftskunde
+--
+-firmenname:String
+-ustid:String
+-rabattProzent:BigDecimal
+--
+
++ Geschaeftskunde(kundennummer: String, vorname:
+String, nachname: String, email: String, firmenname:
+String) // Konstruktor
+
++ getRabattProzent(): BigDecimal 
+ //liefert den vereinbarten Rabatt
++ setRabattProzent(rabattProzent: BigDecimal): void
+ //prüft: zwischen 0 und 100
+Prozent
+
+--
+
+Notizen:
+Rabatt zwischen 0 und 100 Prozent
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>510</x><y>396</y><w>99</w><h>141</h></coordinates><panel_attributes>bg=pink
+Benutzerkonto
+--
++STATUS ADMIN: int = 0
++STATUS PRIVAT: int = 1
++STATUS GESCHAEFT: int = 2
+- kontoId: int
+- benutzername: String
+- passwortHash: String
+- aktiv: boolean
+- passwortGeaendertAm:
+LocalDateTime
+- status: int
+
+--
+
++ Benutzerkonto(benutzername: String,
+passwortHash: String, status: int) //Konstruktor
+
++ istAdmin(): boolean // Status 0 ist Administrator
++ sperren(): void // Konto sperren, keine Anmeldung
++ entsperren(): void //Sperre aufheben
++ aenderePasswort(neuerHash: String): void 
+ //setzt neuen Hash und das Änderungsdatum gemeinsam
++ pruefePasswort(eingabe: String): boolean
+ //Anmeldung: Eingabe mit dem Hash
+vergleichen
+
+--
+Notizen:
+Passwort nie lesbar
+speichern. Änderungsdatum
+bei jeder Passwortänderung
+setzen. Gesperrt heißt:
+keine Anmeldung. Status 0,
+1 oder 2.
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>510</x><y>546</y><w>63</w><h>84</h></coordinates><panel_attributes>bg=pink
+Adresse
+--
+- adresseId: int
+- strasse: String
+- hausnummer: String
+- plz: String
+- ort: String
+- land: String
+--
++ Adresse(strasse: String, hausnummer: String, plz:
+String, ort: String) //Konstruktor
+
++ getEinzeilig(): String
+ //Adresse in einer Zeile für die
+Anzeige
+
+--
+Notizen:
+Land meist Deutschland
+(Vorbelegung).
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>783</x><y>630</y><w>120</w><h>180</h></coordinates><panel_attributes>bg=#CCFFCC
+Artikel
+--
+
+- artikelId: int
+- artikelnummer: String
+- bezeichnung: String
+- beschreibung: String
+- nettopreis: BigDecimal
+- lagerbestand: int
+- meldebestand: int
+- ean: String
+- steuersatz: Steuersatz
+- einheit: Einheit
+- bilder:ArrayList&lt;Bild&gt;
+
+--
+
++ Artikel(artikelnummer: String, bezeichnung:
+String, nettopreis: BigDecimal, steuersatz:
+Steuersatz, einheit: Einheit) // Konstruktor
+
++ getBruttopreis(): BigDecimal 
+ //Netto plus Steuer, auf den Cent gerundet
++ setNettopreis(nettopreis: BigDecimal): void
+//prüft: Preis nie negativ
++ addBild(bild: Bild): void //Bild hinzufügen
++ getHauptbild(): Bild //Bild für die Artikelübersicht
++ istLieferbar(): boolean //Lagerbestand größer als 0
++ istUnterMeldebestand(): boolean
+ //Bestand unter Meldebestand: Shopbetreiber 
+benachrichtigen
++ verringereBestand(menge: int): void
+ //beim Verkauf, prüft: nie mehr als
+auf Lager
+
+--
+
+Artikelnummer eindeutig. 
+Preis nie negativ.
+Nie mehr verkaufen als auf Lager. 
+Unter Meldebestand benachrichtigen.
+Bruttopreis centgenau.
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>666</x><y>624</y><w>63</w><h>54</h></coordinates><panel_attributes>bg=#CCFFCC
+Steuersatz
+--
+- steuerId: int
+- bezeichnung: String
+- prozentsatz: BigDecimal
+--
++ Steuersatz(bezeichnung: String,
+ prozentsatz: BigDecimal)
+ //Kostruktor
+
+--
+Notizen:
+Ein Satz für viele Artikel.
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>666</x><y>684</y><w>63</w><h>54</h></coordinates><panel_attributes>bg=#CCFFCC
+Einheit
+--
+- einheitId: int
+- kurz: String
+- bezeichnung: String
+--
++ Einheit(kurz: String, 
+bezeichnung: String)
+ //Kostruktor
+
+--
+Notizen:
+Kurzform und Bezeichnung.
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>666</x><y>744</y><w>81</w><h>87</h></coordinates><panel_attributes>bg=#CCFFCC
+Bild
+--
+- bildId: int
+- dateiname: String
+- dateiendung: String
+- daten: byte[]
+- hauptbild: boolean
+--
++ Bild(dateiname: String, dateiendung: String,
+daten: byte[]) /7Konstruktor
++ getVollerDateiname(): String
+ //Dateinname mit endung
++ getMimeTyp(): String
+//
+Dateiart für den Browser, z. B.
+image/png
+--
+Notizen:
+Datei als Bytes in der Datenbank, 
+nicht auf dem Laufwerk. 
+Höchstens ein Hauptbild sinnvoll.
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>894</x><y>246</y><w>108</w><h>99</h></coordinates><panel_attributes>bg=#CCDDEE
+Zahlungsart
+Interface
+--
+keine (nur Methoden)
+--
++ getBezeichnung(): String //Name der Zahlungsart
++ berechneFaelligkeit(rechnungsdatum: LocalDate): LocalDate
+ // Zahldatum aus dem Rechnungsdatum
++ getZahlungshinweis(): String //Text für die Rechnung
+
+--
+Notizen:
+Weitere Zahlungsarten ohne
+Umbau des Bestellvorgangs
+(deshalb Interface).
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1038</x><y>246</y><w>102</w><h>99</h></coordinates><panel_attributes>bg=#CCDDEE
+Rechnungskauf
+implementiert Zahlungsart
+--
+- zahlungszielTage: int
+--
+
++ Rechnungskauf(zahlungszielTage: int) //Konstruktor
++ getBezeichnung(): String //"Rechnungskauf"
++ berechneFaelligkeit(rechnungsdatum: LocalDate):
+LocalDate //Rechnungsdatum plus Zahlungsziel
++ getZahlungshinweis(): String //Hinweis mit Zahlungsziel
+
+--
+
+Notizen:
+Fällig: Rechnungsdatum plus
+Zahlungsziel.
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1026</x><y>360</y><w>114</w><h>105</h></coordinates><panel_attributes>bg=#CCDDEE
+Lastschrift
+implementiert Zahlungsart
+--
+
+- iban: String
+- kontoinhaber: String
+
+--
+
++ Lastschrift(iban: String, kontoinhaber: String) //Konstruktor
++ getBezeichnung(): String //"Lastschrift"
++ berechneFaelligkeit(rechnungsdatum: LocalDate):LocalDate
+ //Rechnungsdatum plus 2 Tage
++ getZahlungshinweis(): String //Hinweis mit verkürzter IBAN
++ getIbanMaskiert(): String //IBAN nur verkürzt, z. B. ****
+3000
+
+--
+Notizen:
+Fällig: Rechnungsdatum plus
+2 Tage. IBAN nur verkürzt
+anzeigen.
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1008</x><y>768</y><w>63</w><h>63</h></coordinates><panel_attributes>bg=#BBBBBB
+Beitrag
+--
+- beitragId: int
+- ueberschrift: String
+- einleitung: String
+- haupttext: String
+- erstelltAm:LocalDateTime
+--
++ Beitrag(ueberschrift: String, einleitung:
+String, haupttext: String) //KOnstruktor
+--
+Notizen:
+Erstellzeitpunkt festhalten.
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1077</x><y>699</y><w>63</w><h>63</h></coordinates><panel_attributes>bg=#BBBBBB
+FAQ
+--
+- faqId: int
+- frage: String
+- antwort: String
+--
++ Faq(frage: String, antwort: String) 
+ //Konstruktor
+--
+Notizen:
+Frage und Antwort.
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>510</x><y>663</y><w>105</w><h>168</h></coordinates><panel_attributes>bg=#BBBBBB
+Menueintrag
+--
+- menueId: int
+- kurzform: String
+- bezeichnung: String
+- reihenfolge: int
+- uebergeordnet:Menueintrag
+- untereintraege:ArrayList&lt;Menueintrag&gt;
+
+--
+
++ Menueintrag(kurzform: String, bezeichnung:
+String) //Konstruktor
++ setKurzform(kurzform: String): void prüft: 
+ //höchstens 10 Zeichen, kein Punkt
++ addUntereintrag(eintrag: Menueintrag): void 
+ //Untermenüpunkt hinzufügen
++ istHauptpunkt(): boolean 
+ //hat keinen übergeordneten Eintrag
++ getDateiname(): String 
+ //Kurzform plus .xhtml für die eingebundene Seite
+
+--
+
+Notizen:
+Kurzform höchstens 10
+Zeichen, ohne
+Dateiendung. Unterpunkte
+bleiben, wenn das
+Obermenü entfernt wird.
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>924</x><y>375</y><w>93</w><h>117</h></coordinates><panel_attributes>bg=#FFFFCC
+Warenkorb
+--
+
+-positionen:ArrayList&lt;Warenkorbposition&gt;
+
+--
++ hinzufuegen(artikel: Artikel, menge: int): void
+ //gleicher Artikel erhöht nur die Menge
++ entfernen(artikelnummer: String): void
+ //einen Artikel herausnehmen
++ getSummeNetto(): BigDecimal
+ //Summe netto
++ getSummeBrutto(): BigDecimal
+ //Summe brutto
++ getAnzahlArtikel(): int
+ //Anzahl aller Teile
++ istLeer(): boolean
+ //leer ja oder nein
++ leeren(): void
+ //alles entfernen
+
+--
+
+Notizen:
+Gleicher Artikel erhöht nur die
+Menge. Lebt nur, solange der
+Besucher im Shop ist.
+
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>924</x><y>513</y><w>93</w><h>117</h></coordinates><panel_attributes>bg=#FFFFCC
+Warenposition
+--
+
+- artikel: Artikel
+- menge: int
+
+--
+
++Warenkorbposition(artikel: Artikel, menge: int)
+ //Konstruktor
++ erhoeheMenge(anzahl: int): void //Menge erhöhen
++ aendereMenge(neueMenge: int): void
+ //prüft: Menge immer größer als 0
++ getSummeNetto(): BigDecimal
+ //Einzelpreis mal Menge, netto
++ getSummeBrutto(): BigDecimal
+ // Einzelpreis mal Menge, brutto
+
+--
+
+Notizen:
+Menge immer größer als null.
+
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>786</x><y>375</y><w>117</w><h>216</h></coordinates><panel_attributes>bg=#FFFFCC
+Bestellung
+--
++ STATUS_OFFEN:String = "offen"
++ STATUS_AUSGEFUEHRT:String = "ausgefuehrt"
++ STATUS_STORNIERT:String = "storniert"
+- bestellungId: int
+- bestellnummer: String
+- kunde: Kunde
+- lieferadresse: Adresse
+- rechnungsadresse: Adresse
+- zahlungsart: Zahlungsart
+- bestelldatum: LocalDateTime
+- ausfuehrungsdatum: LocalDate
+- storniert: boolean
+- positionen:ArrayList&lt;Bestellposition&gt;
+
+--
+
++ Bestellung(bestellnummer: String, kunde:
+Kunde, lieferadresse: Adresse, rechnungsadresse:
+Adresse, zahlungsart: Zahlungsart)
+ //Konstruktor
+
++ addPosition(position: Bestellposition): void 
+ //Position hinzufügen
++ uebernehmeWarenkorb(warenkorb:Warenkorb): void
+ //Positionen beim Bestellen aus dem Warenkorb übernehmen
++ getSummeNetto(): BigDecimal //Nettosumme aller Positionen
++ getSteuersaetze(): ArrayList&lt;BigDecimal&gt; 
+ //welche Steuersätze kommen vor (7%, 19 %)
++ getSummeNettoFuerSteuersatz(satz:BigDecimal): BigDecimal
+ //Nettosumme nur für einen Steuersatz
++ getSteuerFuerSteuersatz(satz: BigDecimal):BigDecimal
+ //Umsatzsteuer für einen Steuersatz
++ getSummeSteuer(): BigDecimal //Umsatzsteuer gesamt
++ getSummeBrutto(): BigDecimal //Gesamtbetrag
++ getStatus(): String //offen, ausgeführt oder storniert,
+berechnet aus Datum und storniert
++ ausfuehren(datum: LocalDate): void 
+ //nur wenn offen: Zustelldatum setzen
++ stornieren(datum: LocalDate): void 
+ // nur wenn offen: Stornodatum setzen und storniert merken
+
+--
+
+Notizen:
+Mindestens eine Position.
+Offen, ausgeführt oder
+storniert. Nur offene
+Bestellungen ausführen oder
+stornieren.
+
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>666</x><y>513</y><w>96</w><h>102</h></coordinates><panel_attributes>bg=#FFFFCC
+Bestellposition
+--
+
+- positionId: int
+- artikelnummer: String
+- bezeichnung: String
+- einzelpreisNetto: BigDecimal
+- steuersatzProzent: BigDecimal
+- menge: int
+--
++ Bestellposition(artikel: Artikel, menge: int,
+rabattProzent: BigDecimal)
+ //Konstruktor
++ Bestellposition(artikelnummer: String,
+bezeichnung: String, einzelpreisNetto: BigDecimal,
+steuersatzProzent: BigDecimal, menge: int)
+ //Konstruktor
++ getSummeNetto(): BigDecimal 
+ //Einzelpreis mal Menge
+
+--
+Notizen:
+Werte zum Bestellzeitpunkt kopieren, danach
+unveränderlich. Rabatt steckt im Einzelpreis</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>669</x><y>375</y><w>93</w><h>117</h></coordinates><panel_attributes>bg=#FFFFCC
+Rechnung
+--
+
+- rechnungId: int
+- rechnungsnummer: String
+- rechnungsdatum: LocalDate
+- bestellung: Bestellung
+ 
+--
++ Rechnung(rechnungsnummer: String, bestellung:
+Bestellung, rechnungsdatum: LocalDate)
+ //Konstruktor
++ getRechnungsbetrag(): BigDecimal 
+ //Gesamtbetrag der Bestellung
++ getFaelligkeit(): LocalDate //bis wann 
+gezahlt sein muss, fragt die Zahlungsart
+
+--
+
+Notizen
+Nur für ausgeführte
+Bestellungen, genau eine je
+Bestellung. Nachträglich
+unveränderlich.
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>645</x><y>342</y><w>177</w><h>15</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;30;570;30;570;10</additional_attributes></element><element><id>Relation</id><coordinates><x>645</x><y>342</y><w>60</w><h>15</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;30;180;30;180;10</additional_attributes></element><element><id>Relation</id><coordinates><x>543</x><y>372</y><w>15</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=0..1
+m2=1</panel_attributes><additional_attributes>10;10;10;80</additional_attributes></element><element><id>Relation</id><coordinates><x>570</x><y>372</y><w>72</w><h>195</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=1
+m2=1..*</panel_attributes><additional_attributes>210;10;210;620;10;620</additional_attributes></element><element><id>Relation</id><coordinates><x>726</x><y>660</y><w>63</w><h>12</h></coordinates><panel_attributes>lt=-&gt;
+m1=1
+m2=*</panel_attributes><additional_attributes>190;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>726</x><y>717</y><w>63</w><h>12</h></coordinates><panel_attributes>lt=-&gt;
+m1=1
+m2=*</panel_attributes><additional_attributes>190;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>744</x><y>792</y><w>45</w><h>12</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=1
+m2=0..*</panel_attributes><additional_attributes>130;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>999</x><y>258</y><w>33</w><h>105</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;10;90;10;90;330</additional_attributes></element><element><id>Relation</id><coordinates><x>999</x><y>258</y><w>45</w><h>9</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;10;130;10</additional_attributes></element><element><id>Relation</id><coordinates><x>645</x><y>363</y><w>165</w><h>18</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=*</panel_attributes><additional_attributes>10;10;520;10;520;40</additional_attributes></element><element><id>Relation</id><coordinates><x>759</x><y>543</y><w>33</w><h>15</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=1
+m2=1..*
+</panel_attributes><additional_attributes>90;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>759</x><y>396</y><w>33</w><h>12</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=0..1</panel_attributes><additional_attributes>90;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>900</x><y>405</y><w>30</w><h>12</h></coordinates><panel_attributes>lt=&lt;.
+use</panel_attributes><additional_attributes>80;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>969</x><y>489</y><w>15</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=1
+m2=0..*</panel_attributes><additional_attributes>10;10;10;80</additional_attributes></element><element><id>Relation</id><coordinates><x>759</x><y>609</y><w>78</w><h>27</h></coordinates><panel_attributes>lt=&lt;.
+use
+kopiert Werte</panel_attributes><additional_attributes>240;70;240;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>855</x><y>606</y><w>75</w><h>30</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=*</panel_attributes><additional_attributes>10;80;10;10;230;10</additional_attributes></element><element><id>Relation</id><coordinates><x>852</x><y>342</y><w>78</w><h>39</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=*</panel_attributes><additional_attributes>230;10;230;80;10;80;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>612</x><y>726</y><w>42</w><h>57</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=0..1
+m2=0..*
+unter-
+einträge</panel_attributes><additional_attributes>10;10;70;10;70;160;10;160</additional_attributes></element><element><id>Relation</id><coordinates><x>570</x><y>501</y><w>222</w><h>78</h></coordinates><panel_attributes>lt=&lt;-
+m1= 2
+m2=Liefer/Rechnungsadresse                                          *
+</panel_attributes><additional_attributes>10;230;300;230;300;10;720;10</additional_attributes></element></diagram>
